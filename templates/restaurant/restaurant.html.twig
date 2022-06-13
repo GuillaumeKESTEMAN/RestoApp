@@ -1,0 +1,20 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}
+	Restaurants
+{% endblock %}
+
+{% block body %}
+
+	<div class="wrapper">
+		{% include('navbar.html.twig') %}
+		<h1>{{ restaurant.getName() }}</h1>
+
+		<h3>Plats :</h3>
+		<ul>
+			{% for meal in meals %}
+				<li>{{ meal.getName() }}</li>
+			{% endfor %}
+		</ul>
+	</div>
+{% endblock %}

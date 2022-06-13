@@ -1,0 +1,20 @@
+sécurité : login, role_user
+
+navbar
+
+pages:
+	X /
+	X /login
+	X /logout
+	X /register
+	X /contact
+	/restaurant/{id}
+	/restaurant/edit
+	/random_meal
+
+
+Problème EditRestaurantController.php ligne 72 : id non défini
+Vérifier les persist dans la db des RestaurantUserConnection (au bon endroit ?)
+
+Rajouter l'ajout de l'id du meal et du restaurant dans la db
+

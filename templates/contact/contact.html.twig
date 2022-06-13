@@ -1,0 +1,21 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Contact
+{% endblock %}
+
+{% block body %}
+	<style>
+		.grey-background {
+			background-color: #A59FA3;
+			color: rgba(75, 68, 68,0.6);
+		}
+	</style>
+
+	<div class="wrapper">
+		{% include('navbar.html.twig') %}
+		<h1>Contact :</h1>
+
+		{{ form(form) }}
+	</div>
+
+	{% endblock %}

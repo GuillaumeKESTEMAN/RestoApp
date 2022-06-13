@@ -1,0 +1,97 @@
+{% extends 'base.html.twig' %}
+
+
+{% block body %}
+
+	<style>
+		.navbar {
+			position: relative;
+		}
+
+		.nav-ul {
+			list-style-type: none;
+			margin: 0;
+			padding: 0;
+			overflow: hidden;
+			background-color: #333;
+		}
+
+		.nav-li {
+			float: left;
+		}
+
+		.nav-a {
+			display: block;
+			color: #9D9D9D;
+			text-align: center;
+			padding: 14px 16px;
+			line-height: 17px;
+			text-decoration: none;
+			font-size: 17px;
+		}
+
+		.nav-a:hover {
+			background-color: #111;
+		}
+
+		.user-detail {
+			float: right;
+		}
+
+		.logout li {
+			padding: 14px 16px;
+		}
+
+		.logout a {
+			color: red;
+			font-size: 14px;
+		}
+
+		.user {
+			position: absolute;
+			top: 50%;
+			transform: translate(-50%, -50%);
+			width: 250px;
+			font-weight: bold;
+			font-size: 0.7em;
+			margin: auto auto auto -130px;
+			color: green;
+		}
+	</style>
+
+	<div class="navbar">
+		<ul class="nav-ul">
+			{% if app.user %}
+				<li class="nav-li">
+					<a class="nav-a" href="{{ path('app_home') }}" style="{% if app.request.attributes.get('_route') == 'app_home' %} color: white;{% endif %}">Home</a>
+				</li>
+				<li class="nav-li">
+					<a class="nav-a" href="{{ path('restaurant', {id: 1}) }}" style="{% if app.request.attributes.get('_route') == 'restaurant' %} color: white;{% endif %}">Restaurants</a>
+				</li>
+				<li class="nav-li">
+					<a class="nav-a" href="{{ path('restaurant_edit') }}" style="{% if app.request.attributes.get('_route') == 'restaurant_edit' %} color: white;{% endif %}">Mon préféré</a>
+				</li>
+				<li class="nav-li">
+					<a class="nav-a" href="{{ path('contact') }}" style="{% if app.request.attributes.get('_route') == 'contact' %} color: white;{% endif %}">Contact</a>
+				</li>
+				<ul class="user-detail nav-ul">
+					<li class="user nav-li">
+						<p>connecté en tant que :
+							{{ app.user.getName() }}</p>
+					</li>
+					<li class="logout nav-li">
+						<a class="nav-a" href="{{ path('app_logout') }}">Logout</a>
+					</li>
+				</ul>
+			{% else %}
+				<li class="nav-li">
+					<a class="nav-a" href="{{ path('login') }}" style="{% if app.request.attributes.get('_route') == 'login' %} color: white;{% endif %}">Login</a>
+				</li>
+				<li class="nav-li">
+					<a class="nav-a" href="{{ path('register') }}" style="{% if app.request.attributes.get('_route') == 'register' %} color: white;{% endif %}">Register</a>
+				</li>
+			{% endif %}
+			</ul>
+		</div>
+
+	{% endblock %}
