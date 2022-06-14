@@ -8,9 +8,6 @@
 	<div class="wrapper">
 		{% include('navbar.html.twig') %}
 		<h1>Register :</h1>
-		{% if error %}
-			<div style="color: red; font-weight: bold;">{{ error.getMessage() }}</div>
-		{% endif %}
 		{{ form(form) }}
 		</div>
 

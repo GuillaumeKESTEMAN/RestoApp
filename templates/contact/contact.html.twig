@@ -13,9 +13,16 @@
 
 	<div class="wrapper">
 		{% include('navbar.html.twig') %}
+
+		{% for message in app.flashes('success') %}
+			<div class="flash-success">
+				{{ message }}
+			</div>
+		{% endfor %}
+
 		<h1>Contact :</h1>
 
 		{{ form(form) }}
 	</div>
 
-	{% endblock %}
+{% endblock %}
