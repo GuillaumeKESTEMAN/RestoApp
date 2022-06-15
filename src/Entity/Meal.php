@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Entity;
 
 use App\Repository\MealRepository;
@@ -19,8 +21,9 @@ class Meal
     #[ORM\Column(type: 'string', name: 'name')]
     private ?string $name = null;
 
-    #[ORM\Column(type: 'integer', name: 'user_id')]
-    public ?int $userId = null;
+    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'meals')]
+    #[ORM\JoinColumn(nullable: false)]
+    private $user;
 
     public function getId(): ?int
     {
@@ -51,13 +54,15 @@ class Meal
         return $this;
     }
 
-    public function getUserId(): ?int
+    public function getUser(): ?User
     {
-        return $this->userId;
+        return $this->user;
     }
 
-    public function setUserId(int $userId): void
+    public function setUser(?User $user): self
     {
-        $this->userId = $userId;
+        $this->user = $user;
+
+        return $this;
     }
 }

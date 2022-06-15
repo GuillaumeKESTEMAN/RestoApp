@@ -1,10 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Form\Type;
 
+use App\Entity\Meal;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
-use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
@@ -12,8 +14,6 @@ class MealType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
-        // var_dump($options);
-
         $canGiveAMeal = $options['canGiveAMeal'];
         $meal = $options['meal'];
         $mealFormClass = $canGiveAMeal ? '' : 'grey-background';
@@ -23,25 +23,20 @@ class MealType extends AbstractType
                 'label' => 'Nom du plat : ',
                 'data' => $meal->getName(),
                 'attr' => ['readonly' => !$canGiveAMeal, 'class' => $mealFormClass, 'disabled' => !$canGiveAMeal],
-            ])
-            ->add('userId', HiddenType::class, [
-                'data' => $meal->getUserId(),
-            ])
-            ->add('restaurantId', HiddenType::class, [
-                'data' => $meal->getRestaurantId(),
-            ])
-            ;
+            ]);
     }
 
-    public function configureOptions(OptionsResolver $resolver) {
+    public function configureOptions(OptionsResolver $resolver): void
+    {
         $resolver->setDefaults([
-            'data_class' => 'App\Entity\Meal',
+            'data_class' => Meal::class,
             'canGiveAMeal' => false,
             'meal' => null,
         ]);
     }
 
-    public function getName() {
+    public function getName()
+    {
         return 'plat';
     }
 

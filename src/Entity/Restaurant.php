@@ -1,8 +1,9 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Entity;
 
-use App\Entity\Meal;
 use App\Repository\RestaurantRepository;
 use Doctrine\ORM\Mapping as ORM;
 

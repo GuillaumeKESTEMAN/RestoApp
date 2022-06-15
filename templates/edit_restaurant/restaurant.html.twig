@@ -4,6 +4,7 @@
 {% endblock %}
 
 {% block body %}
+	{#	utilise un block style plutôt au niveau de base.html.twig que tu étends. #}
 	<style>
         .grey-background {
 			background-color: #A59FA3;
@@ -12,10 +13,11 @@
 	</style>
 
 	<div class="wrapper">
+		{#	Si tu l'inclue tout le temps, et le dans le base.html.twig. #}
 		{% include('navbar.html.twig') %}
 		<h1>Votre restaurant préféré !</h1>
 
         {{ form(form) }}
-		
+
 	</div>
 {% endblock %}

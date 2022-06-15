@@ -12,11 +12,9 @@ use Symfony\Component\Security\Http\Authenticator\AbstractAuthenticator;
 use Symfony\Component\Security\Http\Authenticator\Passport\Badge\UserBadge;
 use Symfony\Component\Security\Http\Authenticator\Passport\Credentials\PasswordCredentials;
 use Symfony\Component\Security\Http\Authenticator\Passport\Passport;
-use Symfony\Component\Security\Http\Authenticator\Passport\PassportInterface;
 
 class FormAuthenticator extends AbstractAuthenticator
 {
-
     public function supports(Request $request): ?bool
     {
         return $request->request->has('_username') && $request->request->has('_password');

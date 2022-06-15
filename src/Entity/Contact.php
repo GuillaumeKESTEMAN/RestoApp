@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Entity;
 
 use App\Repository\ContactRepository;
@@ -12,30 +14,31 @@ class Contact
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
-    private $id;
+    private int $id;
 
     public function getId(): ?int
     {
         return $this->id;
     }
 
-    #[ORM\Column(type: 'string', name: 'email')]
+    #[ORM\Column()]
     public string $email = '';
 
-    #[ORM\Column(type: 'integer', name: 'user_id')]
-    public int $userId = 0;
+    #[ORM\Column(type: 'datetime')]
+    public ?\DateTime $date = null;
 
-    #[ORM\Column(type: 'string', name: 'date')]
-    public string $date = '';
-
-    #[ORM\Column(type: 'string', name: 'sujet')]
+    #[ORM\Column()]
     #[Assert\NotBlank()]
     public string $sujet = '';
 
-    #[ORM\Column(type: 'string', name: 'description')]
-    #[Assert\Length(min:'10')]
+    #[ORM\Column()]
+    #[Assert\Length(min: 10)]
     #[Assert\NotBlank()]
     public string $description = '';
+
+    #[ORM\ManyToOne(targetEntity: User::class)]
+    #[ORM\JoinColumn(nullable: false)]
+    private $user;
 
     public function getEmail(): ?string
     {
@@ -47,22 +50,12 @@ class Contact
         $this->email = $email;
     }
 
-    public function getUserId(): ?int
-    {
-        return $this->userId;
-    }
-
-    public function setUserId(int $userId): void
-    {
-        $this->userId = $userId;
-    }
-
-    public function getDate(): ?string
+    public function getDate(): ?\DateTime
     {
         return $this->date;
     }
 
-    public function setDate(string $date): void
+    public function setDate(?\DateTime $date): void
     {
         $this->date = $date;
     }
@@ -85,5 +78,17 @@ class Contact
     public function setDescription(string $description): void
     {
         $this->description = $description;
+    }
+
+    public function getUser(): ?User
+    {
+        return $this->user;
+    }
+
+    public function setUser(?User $user): self
+    {
+        $this->user = $user;
+
+        return $this;
     }
 }

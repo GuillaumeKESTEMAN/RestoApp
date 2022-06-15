@@ -8,12 +8,12 @@
 
 	<div class="wrapper">
 		{% include('navbar.html.twig') %}
-		<h1>{{ restaurant.getName() }}</h1>
+		<h1>{{ restaurant.name }}</h1>
 
 		<h3>Plats :</h3>
 		<ul>
-			{% for meal in meals %}
-				<li>{{ meal.getName() }}</li>
+			{% for meal in restaurant.meals %}
+				<li>{{ meal.name }}</li>
 			{% endfor %}
 		</ul>
 	</div>
