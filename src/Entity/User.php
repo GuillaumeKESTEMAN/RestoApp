@@ -26,7 +26,7 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
 
     #[ORM\Column(type: 'string', name: 'name')]
     #[Assert\NotBlank()]
-    #[Assert\Length(min: '3')]
+    #[Assert\Length(min: 3)]
     private string $name = '';
 
     #[ORM\Column(type: 'string', name: 'email')]
@@ -35,16 +35,19 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
 
     #[ORM\Column(type: 'string', name: 'password')]
     #[Assert\NotBlank()]
-    #[Assert\Length(min: '5')]
+    #[Assert\Length(min: 5)]
     private string $password = '';
 
     /**
      * @ORM\Column(type="json")
      */
-    private $roles = [];
+    private array $roles = [];
 
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: Meal::class, orphanRemoval: true)]
     private $meals;
+
+    #[ORM\ManyToOne(targetEntity: Restaurant::class)]
+    private ?Restaurant $favorite = null;
 
     public function __construct()
     {
@@ -122,9 +125,9 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
 
     public function addMeal(Meal $meal): self
     {
-        if (!$this->meals->contains($meal)) {
+        $meal->setUser($this);
+        if (!in_array($meal, (array)$this->meals)) {
             $this->meals[] = $meal;
-            $meal->setUser($this);
         }
 
         return $this;
@@ -140,5 +143,15 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
         }
 
         return $this;
+    }
+
+    public function getFavorite(): ?Restaurant
+    {
+        return $this->favorite;
+    }
+
+    public function setFavorite(?Restaurant $favorite): void
+    {
+        $this->favorite = $favorite;
     }
 }

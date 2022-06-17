@@ -13,31 +13,32 @@ class Meal
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
-    private $id;
+    private ?int $id = null;
 
-    #[ORM\Column(type: 'integer', name: 'restaurant_id')]
-    private ?int $restaurantId = null;
+    #[ORM\ManyToOne(targetEntity: Restaurant::class, inversedBy: 'meals')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Restaurant $restaurant = null;
 
     #[ORM\Column(type: 'string', name: 'name')]
     private ?string $name = null;
 
     #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'meals')]
     #[ORM\JoinColumn(nullable: false)]
-    private $user;
+    private ?User $user;
 
     public function getId(): ?int
     {
         return $this->id;
     }
 
-    public function getRestaurantId(): ?int
+    public function getRestaurant(): ?Restaurant
     {
-        return $this->restaurantId;
+        return $this->restaurant;
     }
 
-    public function setRestaurantId(int $restaurantId): self
+    public function setRestaurant(Restaurant $restaurant): self
     {
-        $this->restaurantId = $restaurantId;
+        $this->restaurant = $restaurant;
 
         return $this;
     }

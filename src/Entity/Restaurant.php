@@ -5,22 +5,32 @@ declare(strict_types=1);
 namespace App\Entity;
 
 use App\Repository\RestaurantRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 #[ORM\Entity(repositoryClass: RestaurantRepository::class)]
+#[UniqueEntity('name')]
 class Restaurant
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
-    private $id;
+    private ?int $id = null;
 
     #[ORM\Column(type: 'string', name: 'name')]
     private ?string $name = null;
 
-    public ?int $userId = null;
+    private ?int $userId = null;
 
-    public ?Meal $plat = null;
+    #[ORM\OneToMany(mappedBy: 'restaurant', targetEntity: Meal::class, orphanRemoval: true)]
+    private Collection $meals;
+
+    public function __construct()
+    {
+        $this->meals = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -49,14 +59,32 @@ class Restaurant
         $this->userId = $userId;
     }
 
-    public function getPlat(): ?Meal
+    /**
+     * @return Collection<int, Meal>
+     */
+    public function getMeals(): Collection
     {
-        return $this->plat;
+        return $this->meals;
     }
 
-    public function setPlat(Meal $plat): self
+    public function addMeal(Meal $meal): self
     {
-        $this->plat = $plat;
+        if (!$this->meals->contains($meal)) {
+            $meal->setRestaurant($this);
+            $this->meals->add($meal);
+        }
+
+        return $this;
+    }
+
+    public function removeMeal(Meal $meal): self
+    {
+        if ($this->meals->removeElement($meal)) {
+            // set the owning side to null (unless already changed)
+            if ($meal->getUser() === $this) {
+                $meal->setUser(null);
+            }
+        }
 
         return $this;
     }

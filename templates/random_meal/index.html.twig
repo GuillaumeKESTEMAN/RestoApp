@@ -1,0 +1,24 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}
+    Plat aléatoire
+{% endblock %}
+
+{% block body %}
+
+    <div class="wrapper">
+        {% include('navbar.html.twig') %}
+
+        <h3>Plat aléatoire :</h3>
+        <p><i>un plat aléatoire est disponible chaque jour</i></p>
+        <br/>
+        {% if(null != meal) %}
+            <p>Nous vous conseillons de tester ce plat aujourd'hui : "{{ meal.name }}"</p>
+            <span>Ce plat provient du restaurant :</span>
+            <a href="{{ path('get_restaurant', {id: meal.restaurant.id}) }}">{{ meal.restaurant.name }}</a>
+        {% else %}
+            <p>Aucun plat n'a été trouvé, nous en sommes désolé...</p>
+        {% endif %}
+
+    </div>
+{% endblock %}

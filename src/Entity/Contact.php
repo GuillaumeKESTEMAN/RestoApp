@@ -38,7 +38,7 @@ class Contact
 
     #[ORM\ManyToOne(targetEntity: User::class)]
     #[ORM\JoinColumn(nullable: false)]
-    private $user;
+    private ?User $user;
 
     public function getEmail(): ?string
     {

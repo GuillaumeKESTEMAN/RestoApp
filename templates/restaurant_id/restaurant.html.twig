@@ -1,0 +1,41 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}
+    Restaurants
+{% endblock %}
+
+{% block body %}
+
+    <div class="wrapper">
+        {% include('navbar.html.twig') %}
+
+        <h1>{{ restaurant.getName() }}</h1>
+
+        {% for message in app.flashes('success') %}
+            <div class="flash-success">
+                {{ message }}
+            </div>
+        {% endfor %}
+
+        <h3>Plats :</h3>
+        <ul>
+            {% if(nbrMealsItems > 0) %}
+            {% for meal in restaurant.meals %}
+                <li>{{ meal.name }}</li>
+            {% endfor %}
+            {% else %}
+                <p><i>Aucuns plats pour le moment</i></p>
+            {% endif %}
+        </ul>
+        {{ form(form) }}
+        <br/>
+
+        {% for restaurant in  previousRestaurants %}
+            <a href="{{ path('get_restaurant', {id: restaurant.id}) }}">Découvrir le restaurant précédent</a>
+        {% endfor %}
+
+        {% for restaurant in  nextRestaurants %}
+            <a href="{{ path('get_restaurant', {id: restaurant.id}) }}">Découvrir le restaurant suivant</a>
+        {% endfor %}
+    </div>
+{% endblock %}

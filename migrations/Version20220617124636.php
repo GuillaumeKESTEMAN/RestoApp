@@ -10,7 +10,7 @@ use Doctrine\Migrations\AbstractMigration;
 /**
  * Auto-generated Migration: Please modify to your needs!
  */
-final class Version20220614193351 extends AbstractMigration
+final class Version20220617124636 extends AbstractMigration
 {
     public function getDescription(): string
     {
@@ -32,7 +32,9 @@ final class Version20220614193351 extends AbstractMigration
             "Migration can only be executed safely on '\Doctrine\DBAL\Platforms\SqlitePlatform'."
         );
 
-        $this->addSql('CREATE TABLE meal (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, restaurant_id INTEGER NOT NULL, name VARCHAR(255) NOT NULL COLLATE BINARY, user_id INTEGER NOT NULL)');
+        $this->addSql('CREATE TABLE meal (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, restaurant_id INTEGER NOT NULL, user_id INTEGER NOT NULL, name VARCHAR(255) NOT NULL COLLATE BINARY)');
+        $this->addSql('CREATE INDEX IDX_9EF68E9CA76ED395 ON meal (user_id)');
+        $this->addSql('CREATE INDEX IDX_9EF68E9CB1E7706E ON meal (restaurant_id)');
         $this->abortIf(
             !$this->connection->getDatabasePlatform() instanceof \Doctrine\DBAL\Platforms\SqlitePlatform,
             "Migration can only be executed safely on '\Doctrine\DBAL\Platforms\SqlitePlatform'."
@@ -47,6 +49,13 @@ final class Version20220614193351 extends AbstractMigration
             "Migration can only be executed safely on '\Doctrine\DBAL\Platforms\SqlitePlatform'."
         );
 
+        $this->addSql('CREATE TABLE random_meal (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, meal_id INTEGER NOT NULL, date DATETIME NOT NULL)');
+        $this->addSql('CREATE INDEX IDX_FF89E8F5639666D6 ON random_meal (meal_id)');
+        $this->abortIf(
+            !$this->connection->getDatabasePlatform() instanceof \Doctrine\DBAL\Platforms\SqlitePlatform,
+            "Migration can only be executed safely on '\Doctrine\DBAL\Platforms\SqlitePlatform'."
+        );
+
         $this->addSql('CREATE TABLE restaurant (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, name VARCHAR(255) NOT NULL COLLATE BINARY)');
         $this->abortIf(
             !$this->connection->getDatabasePlatform() instanceof \Doctrine\DBAL\Platforms\SqlitePlatform,
@@ -54,12 +63,15 @@ final class Version20220614193351 extends AbstractMigration
         );
 
         $this->addSql('CREATE TABLE restaurant_user_connection (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, restaurant_id INTEGER NOT NULL, user_id INTEGER NOT NULL)');
+        $this->addSql('CREATE INDEX IDX_486FA368B1E7706E ON restaurant_user_connection (restaurant_id)');
+        $this->addSql('CREATE INDEX IDX_486FA368A76ED395 ON restaurant_user_connection (user_id)');
         $this->abortIf(
             !$this->connection->getDatabasePlatform() instanceof \Doctrine\DBAL\Platforms\SqlitePlatform,
             "Migration can only be executed safely on '\Doctrine\DBAL\Platforms\SqlitePlatform'."
         );
 
-        $this->addSql('CREATE TABLE user (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, name VARCHAR(255) NOT NULL COLLATE BINARY, email VARCHAR(255) NOT NULL COLLATE BINARY, password VARCHAR(255) NOT NULL COLLATE BINARY, meal_id INTEGER DEFAULT NULL)');
+        $this->addSql('CREATE TABLE user (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, favorite_id INTEGER DEFAULT NULL, name VARCHAR(255) NOT NULL COLLATE BINARY, email VARCHAR(255) NOT NULL COLLATE BINARY, password VARCHAR(255) NOT NULL COLLATE BINARY)');
+        $this->addSql('CREATE INDEX IDX_8D93D649AA17481D ON user (favorite_id)');
     }
 
     public function down(Schema $schema): void
@@ -83,6 +95,12 @@ final class Version20220614193351 extends AbstractMigration
         );
 
         $this->addSql('DROP TABLE messenger_messages');
+        $this->abortIf(
+            !$this->connection->getDatabasePlatform() instanceof \Doctrine\DBAL\Platforms\SqlitePlatform,
+            "Migration can only be executed safely on '\Doctrine\DBAL\Platforms\SqlitePlatform'."
+        );
+
+        $this->addSql('DROP TABLE random_meal');
         $this->abortIf(
             !$this->connection->getDatabasePlatform() instanceof \Doctrine\DBAL\Platforms\SqlitePlatform,
             "Migration can only be executed safely on '\Doctrine\DBAL\Platforms\SqlitePlatform'."

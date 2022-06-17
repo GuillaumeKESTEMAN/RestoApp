@@ -12,12 +12,12 @@ class EditRestaurantVoter extends Voter
 {
     protected function supports($attribute, $restaurant): bool
     {
-        return 'edit' === $attribute && $restaurant instanceof Restaurant;
+        return 'editRestaurant' === $attribute && $restaurant instanceof Restaurant;
     }
 
     protected function voteOnAttribute($attribute, $restaurant, TokenInterface $token): bool
     {
         /* @var Restaurant $restaurant */
-        return $restaurant->getUserId() === $token->getUser()?->getId();
+        return $restaurant === $token->getUser()->getFavorite() || $restaurant->getId() === null;
     }
 }

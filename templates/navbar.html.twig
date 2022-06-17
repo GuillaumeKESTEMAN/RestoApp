@@ -65,16 +65,19 @@
 				<a class="nav-a" href="{{ path('app_home') }}" style="{% if app.request.attributes.get('_route') == 'app_home' %} color: white;{% endif %}">Home</a>
 			</li>
 			<li class="nav-li">
-				<a class="nav-a" href="{{ path('restaurant', {id: 1}) }}" style="{% if app.request.attributes.get('_route') == 'restaurant' %} color: white;{% endif %}">Restaurants</a>
+				<a class="nav-a" href="{{ path('restaurants') }}" style="{% if app.request.attributes.get('_route') == 'restaurants' %} color: white;{% endif %}">Restaurants</a>
 			</li>
 			<li class="nav-li">
 				<a class="nav-a" href="{{ path('restaurant_edit') }}" style="{% if app.request.attributes.get('_route') == 'restaurant_edit' %} color: white;{% endif %}">Mon préféré</a>
 			</li>
 			<li class="nav-li">
+				<a class="nav-a" href="{{ path('random_meal') }}" style="{% if app.request.attributes.get('_route') == 'random_meal' %} color: white;{% endif %}">Plat aléatoire</a>
+			</li>
+			<li class="nav-li">
 				<a class="nav-a" href="{{ path('contact') }}" style="{% if app.request.attributes.get('_route') == 'contact' %} color: white;{% endif %}">Contact</a>
 			</li>
 			{#	ul dans un ul, pas très réglementaire ça.	#}
-			<ul class="user-detail nav-ul">
+			<div class="user-detail">
 				<li class="user nav-li">
 					<p>connecté en tant que :
 						{{ app.user.getName() }}</p>
@@ -82,7 +85,7 @@
 				<li class="logout nav-li">
 					<a class="nav-a" href="{{ path('app_logout') }}">Logout</a>
 				</li>
-			</ul>
+			</div>
 		{% else %}
 			<li class="nav-li">
 				<a class="nav-a" href="{{ path('login') }}" style="{% if app.request.attributes.get('_route') == 'login' %} color: white;{% endif %}">Login</a>

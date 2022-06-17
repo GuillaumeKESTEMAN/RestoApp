@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
-use App\Entity\Meal;
 use App\Entity\Restaurant;
-use App\Entity\RestaurantUserConnection;
 use App\Entity\User;
-use App\Form\Type\MealType;
-use Doctrine\Persistence\ManagerRegistry;
+use App\Repository\RestaurantRepository;
+use App\Repository\UserRepository;
+use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -17,136 +17,55 @@ use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Security\Core\Security;
 
 class EditRestaurantController extends AbstractController
 {
-    #[Route('/restaurant/edit', name: 'restaurant_edit')]
-    public function __invoke(Request $request, ManagerRegistry $doctrine, Security $security): Response
+    #[Route('/restaurants/edit', name: 'restaurant_edit')]
+    public function __invoke(Request $request, RestaurantRepository $restaurantRepository, UserRepository $userRepository, EntityManagerInterface $entityManager): Response
     {
-        $restaurant = $this->findRestaurant($doctrine, $security);
+        /** @var User $user */
+        $user = $this->getUser();
+        $restaurant = $user->getFavorite() ?? new Restaurant;
 
-        $canGiveAMeal = null !== $restaurant->getId();
+        $this->denyAccessUnlessGranted('editRestaurant', $restaurant);
 
-        $meal = $this->findMeal($restaurant->getId(), $doctrine, $security);
-
-        $this->denyAccessUnlessGranted('edit', $restaurant);
-
-        $form = $this->formInit($restaurant, $canGiveAMeal, $meal);
-
+        $form = $this->restaurantFormInit($restaurant);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
             $restaurant = $form->getData();
+            $user->setFavorite($restaurant);
 
-            if (null === $restaurant->getId()) {
-                $repository = $doctrine->getRepository(Restaurant::class);
-                $restaurantAlreadyExists = $repository->findOneBy(['name' => $restaurant->getName()]);
+            $restaurantRepository->persist($restaurant);
+            $restaurantRepository->flush();
 
-                $entityManager = $doctrine->getManager();
-
-                if (null === $restaurantAlreadyExists) {
-                    $entityManager->persist($restaurant);
-                    $entityManager->flush();
-                } else {
-                    $restaurant = $restaurantAlreadyExists;
-                }
-
-                $restaurantUserConnection = new RestaurantUserConnection();
-                $restaurantUserConnection->setRestaurantId($restaurant->getId());
-                $restaurantUserConnection->setUserId($security->getUser()->getId());
-
-                $entityManager->persist($restaurantUserConnection);
-                $entityManager->flush();
-            } else {
-                $entityManager = $doctrine->getManager();
-                $entityManager->persist($restaurant);
-                $entityManager->flush();
-            }
-
-            if (null !== $form->getData()->plat && $canGiveAMeal) {
-                $mealAlreadyExists = $meal->getId();
-
-                $meal->setName($form->getData()->plat->getName());
-
-                $entityManager->persist($meal);
-                $entityManager->flush();
-
-                if (!$mealAlreadyExists) {
-                    $userId = $security->getUser()->getId();
-
-                    $userRepository = $doctrine->getRepository(User::class);
-                    $user = $userRepository->findOneBy(['id' => $userId]);
-
-                    $user->setMealId($meal->getId());
-
-                    $entityManager->persist($user);
-                    $entityManager->flush();
-                }
-            } elseif (null !== $form->getData()->plat && !$canGiveAMeal && $restaurant->getId()) {
-                $form = $this->formInit($restaurant, true, $meal);
-            }
-
-            return $this->render('edit_restaurant/restaurant.html.twig', ['form' => $form->createView()]);
+            return $this->redirectToRoute('get_restaurant', ['id' => $restaurant->getId()]);
         }
 
-        return $this->render('edit_restaurant/restaurant.html.twig', ['form' => $form->createView()]);
-    }
+        $errors = $form->getErrors(true);
+        foreach ($errors as $error) {
+            if ($errors->count() === 1 && $error->getCause()->getCode() === UniqueEntity::NOT_UNIQUE_ERROR) {
+                $favorite = $restaurantRepository->findOneByName($restaurant->getName());
+                $user->setFavorite($favorite);
 
-    private function findRestaurant(ManagerRegistry $doctrine, Security $security): ?Restaurant
-    {
-        $restaurant = new Restaurant();
-        $userId = $security->getUser()->getId();
+                $entityManager->detach($restaurant);
 
-        $repository = $doctrine->getRepository(RestaurantUserConnection::class);
-        $restaurantExists = $repository->findOneBy(['userId' => $userId]);
-
-        if (null !== $restaurantExists) {
-            $repository = $doctrine->getRepository(Restaurant::class);
-            $restaurant = $repository->findOneBy(['id' => $restaurantExists->getRestaurantId()]);
-        }
-
-        $restaurant->setUserId($userId);
-
-        return $restaurant;
-    }
-
-    private function findMeal(?int $restaurantId, ManagerRegistry $doctrine, Security $security): ?Meal
-    {
-        $meal = new Meal();
-        $userId = $security->getUser()->getId();
-
-        if (null !== $restaurantId) {
-            $meal->setRestaurantId($restaurantId);
-
-            $userRepository = $doctrine->getRepository(User::class);
-            $user = $userRepository->findOneBy(['id' => $userId]);
-
-            $mealId = $user->getMealId();
-
-            if (null !== $mealId) {
-                $mealRepository = $doctrine->getRepository(Meal::class);
-                $mealExists = $mealRepository->findOneBy(['id' => $mealId]);
-
-                if (null !== $mealExists) {
-                    $meal = $mealExists;
-                }
+                $userRepository->persist($user);
+                $userRepository->flush();
+                return $this->redirectToRoute('get_restaurant', ['id' => $favorite->getId()]);
             }
         }
 
-        $meal->setUserId($userId);
-
-        return $meal;
+        return $this->render('edit_restaurant/restaurant.html.twig', ['form' => $form->createView(), 'restaurantId' => $restaurant->getId()]);
     }
 
-    private function formInit(Restaurant $restaurant, bool $canGiveAMeal, Meal $meal): FormInterface
+    private function restaurantFormInit(Restaurant $restaurant): FormInterface
     {
         return $this->createFormBuilder($restaurant, ['attr' => ['name' => 'restaurant_form']])
             ->add('name', TextType::class, [
                 'label' => 'Nom du restaurant : ',
                 'data' => $restaurant->getName(),
             ])
-            ->add('plat', MealType::class, ['label' => false, 'required' => false, 'canGiveAMeal' => $canGiveAMeal, 'meal' => $meal])
             ->add('send', SubmitType::class, ['label' => 'Envoyer'])
             ->getForm();
     }
