@@ -27,7 +27,7 @@ class RandomMealController extends AbstractController
         if (count($lastRandomMeal) === 0 or time() - strtotime($lastRandomMeal[0]->getDate()->format('Y-m-d H:i:s')) > 60 * 60 * 24) {
             $lastMeal = $mealRepository->getLastEntitiesById();
 
-            if (null !== $lastMeal) {
+            if (count($lastRandomMeal) !== 0) {
                 $meal = $this->getRandomMeal($lastMeal[0]->getId(), $mealRepository);
 
                 if (null !== $meal) {
@@ -47,7 +47,7 @@ class RandomMealController extends AbstractController
             $randomMeal->setMeal($meal);
         }
 
-        return $this->render('random_meal/index.html.twig', ['meal' => $randomMeal->getMeal()]);
+        return $this->render('random_meal/index.html.twig', ['meal' => $randomMeal ? $randomMeal->getMeal() : null]);
     }
 
     /**
