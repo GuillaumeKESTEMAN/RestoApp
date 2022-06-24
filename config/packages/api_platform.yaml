@@ -1,12 +1,3 @@
-http_cache:
-    invalidation:
-        enabled: true
-        varnish_urls: ['%env(VARNISH_URL)%']
-    max_age: 0
-    shared_max_age: 3600
-    vary: ['Content-Type', 'Authorization', 'Origin']
-    public: true
-
 api_platform:
     mapping:
         paths: ['%kernel.project_dir%/src/Entity']
@@ -18,3 +9,11 @@ api_platform:
             apiKey:
                 name: Authorization
                 type: header
+    http_cache:
+        invalidation:
+            enabled: true
+            varnish_urls: [ '%env(VARNISH_URL)%' ]
+        max_age: 0
+        shared_max_age: 3600
+        vary: [ 'Content-Type', 'Authorization', 'Origin' ]
+        public: true
