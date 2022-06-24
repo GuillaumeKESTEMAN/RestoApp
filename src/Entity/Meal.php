@@ -4,10 +4,33 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
+use ApiPlatform\Core\Annotation\ApiFilter;
+use ApiPlatform\Core\Annotation\ApiProperty;
+use ApiPlatform\Core\Annotation\ApiResource;
+use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
 use App\Repository\MealRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: MealRepository::class)]
+#[
+    ApiResource(
+        collectionOperations: [
+            "get",
+            "post"
+        ],
+        itemOperations: [
+            "get",
+            "put" => ["security" => "object.getUser() == user"],
+            "patch" => ["security" => "object.getUser() == user"],
+            "delete" => ["security" => "object.getUser() == user"]
+        ],
+        attributes: [
+            "order" => ["restaurant" => "ASC"],
+            "security" => "is_granted('ROLE_USER')"
+        ]
+    )
+]
+#[ApiFilter(SearchFilter::class, properties: ["restaurant" => "iexact", "name" => "ipartial"])]
 class Meal
 {
     #[ORM\Id]
@@ -19,7 +42,8 @@ class Meal
     #[ORM\JoinColumn(nullable: false)]
     private ?Restaurant $restaurant = null;
 
-    #[ORM\Column(type: 'string', name: 'name')]
+    #[ORM\Column(name: 'name', type: 'string')]
+    #[ApiProperty(iri: "https://schema.org/name")]
     private ?string $name = null;
 
     #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'meals')]

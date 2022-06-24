@@ -4,6 +4,10 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
+use ApiPlatform\Core\Annotation\ApiFilter;
+use ApiPlatform\Core\Annotation\ApiProperty;
+use ApiPlatform\Core\Annotation\ApiResource;
+use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
 use App\Repository\UserRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -17,7 +21,22 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\Table(name: '`user`')]
 #[UniqueEntity('name')]
 #[UniqueEntity('email')]
-class User implements PasswordAuthenticatedUserInterface, UserInterface
+#[
+    ApiResource(
+        collectionOperations: [],
+        itemOperations: [
+            "get",
+            "put",
+            "patch",
+            "delete"
+        ],
+        attributes: [
+            "order" => ["name" => "ASC"],
+            "security" => "is_granted('ROLE_USER') and (object == user)"
+        ]
+    )
+]
+#[ApiFilter(SearchFilter::class, properties: ["name" => "ipartial"])] class User implements PasswordAuthenticatedUserInterface, UserInterface
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -27,20 +46,24 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
     #[ORM\Column(type: 'string', name: 'name')]
     #[Assert\NotBlank()]
     #[Assert\Length(min: 3)]
+    #[ApiProperty(iri: "https://schema.org/name")]
     private string $name = '';
 
     #[ORM\Column(type: 'string', name: 'email')]
     #[Assert\NotBlank()]
+    #[ApiProperty(iri: "https://schema.org/email")]
     private string $email = '';
 
     #[ORM\Column(type: 'string', name: 'password')]
     #[Assert\NotBlank()]
     #[Assert\Length(min: 5)]
+    #[ApiProperty(readable: false, writable: false, iri: "https://schema.org/accessCode")]
     private string $password = '';
 
     /**
      * @ORM\Column(type="json")
      */
+    #[ApiProperty(writable: false)]
     private array $roles = [];
 
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: Meal::class, orphanRemoval: true)]
@@ -89,6 +112,7 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
         $this->password = $password;
     }
 
+    #[ApiProperty(readable: false)]
     public function getUserIdentifier(): string
     {
         return $this->name;

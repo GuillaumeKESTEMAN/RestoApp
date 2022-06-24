@@ -4,11 +4,33 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
+use ApiPlatform\Core\Annotation\ApiFilter;
+use ApiPlatform\Core\Annotation\ApiProperty;
+use ApiPlatform\Core\Annotation\ApiResource;
+use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
 use App\Repository\ContactRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: ContactRepository::class)]
+#[
+    ApiResource(
+        collectionOperations: [
+            "get",
+            "post"
+        ],
+        itemOperations: [
+            "get",
+            "put" => ["security" => "object.getUser() == user"],
+            "patch" => ["security" => "object.getUser() == user"],
+            "delete" => ["security" => "object.getUser() == user"]
+        ],
+        attributes: [
+            "order" => ["date" => "DESC"],
+            "security" => "is_granted('ROLE_USER')"
+        ]
+    )]
+#[ApiFilter(SearchFilter::class, properties: ["email" => "exact", "sujet" => "ipartial", "description" => "ipartial", "date" => "ipartial"])]
 class Contact
 {
     #[ORM\Id]
@@ -22,19 +44,23 @@ class Contact
     }
 
     #[ORM\Column()]
-    public string $email = '';
+    #[ApiProperty(iri: "https://schema.org/email")]
+    private string $email = '';
 
     #[ORM\Column(type: 'datetime')]
-    public ?\DateTime $date = null;
+    #[ApiProperty(iri: "https://schema.org/DateTime")]
+    private ?\DateTime $date = null;
 
     #[ORM\Column()]
     #[Assert\NotBlank()]
-    public string $sujet = '';
+    #[ApiProperty(iri: "https://schema.org/about")]
+    private string $sujet = '';
 
     #[ORM\Column()]
     #[Assert\Length(min: 10)]
     #[Assert\NotBlank()]
-    public string $description = '';
+    #[ApiProperty(iri: "https://schema.org/description")]
+    private string $description = '';
 
     #[ORM\ManyToOne(targetEntity: User::class)]
     #[ORM\JoinColumn(nullable: false)]

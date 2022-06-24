@@ -4,6 +4,10 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
+use ApiPlatform\Core\Annotation\ApiFilter;
+use ApiPlatform\Core\Annotation\ApiProperty;
+use ApiPlatform\Core\Annotation\ApiResource;
+use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
 use App\Repository\RestaurantRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -12,6 +16,24 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 #[ORM\Entity(repositoryClass: RestaurantRepository::class)]
 #[UniqueEntity('name')]
+#[
+    ApiResource(
+        collectionOperations: [
+            "get"
+        ],
+        itemOperations: [
+            "get",
+            "put" => ["security" => "object == user.getFavorite()"],
+            "patch" => ["security" => "object == user.getFavorite()"],
+            "delete" => ["security" => "object == user.getFavorite()"]
+        ],
+        attributes: [
+            "order" => ["name" => "ASC"],
+            "security" => "is_granted('ROLE_USER')"
+        ]
+    )
+]
+#[ApiFilter(SearchFilter::class, properties: ["name" => "ipartial"])]
 class Restaurant
 {
     #[ORM\Id]
@@ -20,11 +42,13 @@ class Restaurant
     private ?int $id = null;
 
     #[ORM\Column(type: 'string', name: 'name')]
+    #[ApiProperty(iri: "https://schema.org/name")]
     private ?string $name = null;
 
     private ?int $userId = null;
 
     #[ORM\OneToMany(mappedBy: 'restaurant', targetEntity: Meal::class, orphanRemoval: true)]
+    #[ApiProperty(iri: "https://schema.org/Collection")]
     private Collection $meals;
 
     public function __construct()
